@@ -2,8 +2,10 @@
 #include <stdlib.h>    // MOD: on utilise <stdlib.h> pour calloc/free au lieu de <malloc.h>
 #include <ctype.h>
 
-typedef struct node {
-    enum { 
+typedef struct node 
+{
+    enum 
+    { 
         ADD, 
         MULTI,
         VAL 
