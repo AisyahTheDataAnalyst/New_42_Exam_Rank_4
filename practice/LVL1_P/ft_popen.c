@@ -46,17 +46,9 @@ int    ft_popen(const char *file, char *const argv[], char type)
 	if (pid == 0)
 	{
 		if (type == 'w')
-		{
-			// close(fd[0]);
 			dup2(fd[1], STDOUT_FILENO);
-			// close(fd[1]);
-		}
 		else if (type == 'r')
-		{
-			// close(fd[1]);
 			dup2(fd[0], STDIN_FILENO);
-			// close(fd[0]);
-		}
 		close(fd[0]);
 		close(fd[1]);
 		execvp(file, argv);
@@ -90,3 +82,5 @@ int main() {
 	}
 	close(fd);
 }
+
+// valgrind --track-fds=yes ./ft_popen
