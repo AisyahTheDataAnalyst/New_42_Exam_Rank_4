@@ -37,14 +37,14 @@ int picoshell(char **cmds[])
 {
     int i = 0;
     int fd[2];
-    int in_fd = 0;   // stdin par défaut (0)
+    int in_fd = 0;   // default standard input file descriptor [0]
     int ret = 0;
     pid_t pid;
     int status;
 
     while (cmds[i])
     {
-        if (cmds[i + 1]) // Si ce n’est pas la dernière commande
+        if (cmds[i + 1]) // If it’s not the last command
         {
             if (pipe(fd) == -1)
                 return 1;
@@ -56,7 +56,7 @@ int picoshell(char **cmds[])
         }
 
         pid = fork();
-        if (pid < 0)
+        if (pid < 0) // Process fail
         {
             if (fd[0] != -1)
                 close(fd[0]);
@@ -66,7 +66,7 @@ int picoshell(char **cmds[])
                 close(in_fd);
             return 1;
         }
-        if (pid == 0) // Enfant
+        if (pid == 0) // Child
         {
             if (in_fd != 0)
             {
@@ -74,7 +74,7 @@ int picoshell(char **cmds[])
                     exit(1);
                 close(in_fd);
             }
-            if (fd[1] != -1) // si ce n'est pas le dernier
+            if (fd[1] != -1) // If it’s not the last one
             {
                 if (dup2(fd[1], 1) == -1)
                     exit(1);
@@ -82,7 +82,7 @@ int picoshell(char **cmds[])
                 close(fd[0]);
             }
             execvp(cmds[i][0], cmds[i]);
-            exit(1); // execvp échoué
+            exit(1); // execvp failed
         }
         else // Parent
         {
