@@ -2,7 +2,7 @@
 
 write the following function:
 
-    int    ft_popen(const char *file, char const argv[], char type)
+    int    ft_popen(const char *file, char *const argv[], char type)
 
 The function must launch the executable file with the arguments argv (using execvp).
 If the type is 'r' the function must return a file descriptor connected to the output of the command.
@@ -84,3 +84,4 @@ int main() {
 }
 
 // valgrind --track-fds=yes ./ft_popen
+// -Wall -Wextra -Werror
