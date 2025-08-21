@@ -25,6 +25,7 @@ Hint: Do not leak file descriptors! */
 #include <sys/types.h> // pid_t , fork()
 #include <unistd.h> //pipe(), dup2(), execvp(), close(), 
 #include <stdlib.h> //exit()
+#include <stdio.h>
 
 // But if the parent doesn’t close the unused pipe end before reading,
 // read() will never see EOF — it will just block
@@ -73,14 +74,22 @@ int    ft_popen(const char *file, char *const argv[], char type)
 int main() {
     int fd = ft_popen("cat", (char *const[]){"cat", "b", NULL}, 'r');
 
-    char	*line;
-    while((line = get_next_line(fd)) != NULL)
+    char	buffer[1024];
+	ssize_t	bytes;
+
+    while((bytes = read(fd, buffer, sizeof(buffer))) > 0)
 	{
-		ft_putstr_fd("READ: ", 1);
-        ft_putstr_fd(line, 1);
-		free (line);
+		if (write(1, buffer, bytes) < 0)
+		{
+			perror("write");
+			close(fd);
+			return (1);
+		}
 	}
+	if (bytes < 0)
+		perror("read");
 	close(fd);
+	return (0);
 }
 
 // valgrind --track-fds=yes ./ft_popen

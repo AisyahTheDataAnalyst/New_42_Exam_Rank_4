@@ -36,98 +36,94 @@ squblblb/
 // b → the replacement text
 // g → global flag, meaning replace all matches on a line, not just the first one
 
-#include <unistd.h> //close, execvp, dup2, pipe
-#include <sys/wait.h> //wait, pid_t (fork), 
-#include <stdlib.h> // exit, 
-#include <string.h> //strcmp (int main)
-#include <stdio.h> // printf
+#include <unistd.h> // close, execvp, dup2, pipe
+#include <sys/wait.h> // wait, fork, pid_t
+#include <stdlib.h> // exit
 
-int picoshell(char **cmds[])
+int    picoshell(char **cmds[])
 {
-    int i = 0;
     int fd[2];
-    int in_fd = 0;   // default standard input file descriptor [0]
-    int ret = 0;
-    pid_t pid;
+    int i = 0;
     int status;
+    pid_t pid;
+    int fd_in;
+    int ret = 0;
 
     while (cmds[i])
     {
-        if (cmds[i + 1]) // If it’s not the last command////////////////////////////////////
+        if (cmds[i + 1])
         {
             if (pipe(fd) == -1)
-                return 1;
+                return (1);
         }
         else
         {
             fd[0] = -1;
             fd[1] = -1;
         }
-
         pid = fork();
-        if (pid < 0) // Process fail //////////////////////////////////////////////////
+        if (pid < 0)
         {
             if (fd[0] != -1)
-                close(fd[0]);
+                close (fd[0]);
             if (fd[1] != -1)
-                close(fd[1]);
-            if (in_fd != 0)
-                close(in_fd);
-            return 1;
+                close (fd[1]);
+            if (fd_in != 0)
+                close (fd_in);
+            return (1);
         }
-        if (pid == 0) // Child ////////////////////////////////////////////////////////
+        if (pid == 0)
         {
-            if (in_fd != 0)
+            if (fd_in != 0)
             {
-                dup2(in_fd, STDIN_FILENO);
-                close(in_fd);
+                dup2(fd_in, STDIN_FILENO);
+                close(fd_in);
             }
-            if (fd[1] != -1) // If it’s not the last one
+            if (fd[1] != -1)
             {
                 dup2(fd[1], STDOUT_FILENO);
                 close(fd[1]);
                 close(fd[0]);
             }
             execvp(cmds[i][0], cmds[i]);
-            exit(EXIT_FAILURE); // execvp failed
+            exit(EXIT_FAILURE);
         }
-        else if (pid > 0) // Parent //////////////////////////////////////////////////////
+        if (pid > 0)
         {
-            if (in_fd != 0)
-                close(in_fd);
             if (fd[1] != -1)
-                close(fd[1]);
-            in_fd = fd[0];
-        }////////////////////////////////////////////////////////////////////////////////////
+                close (fd[1]);
+            if (fd_in != 0)
+                close (fd_in);
+            fd_in = fd[0];
+        }
         i++;
     }
     while (wait(&status) > 0)
     {
         if (WIFEXITED(status))
         {
-            if (WEXITSTATUS(status) != 0) 
-                ret = 1;
+            if (WEXITSTATUS(status) != 0)
+                ret = 1; 
         }
-        else if (WIFEXITED(status) == 0)
+        else
             ret = 1;
     }
-    return ret;
+    return (ret);
 }
 
+#include <string.h> // strcmp
+#include <stdio.h> // printf
 
 int main(int ac, char **av)
 {
-    // Example: ./picoshell /bin/ls "|" /usr/bin/grep picoshell
-    //          ./picoshell echo squalala "|" cat "|" sed s/a/b/g
     if (ac < 2)
     {
-        printf("Commands insufficient for picoshell");
+        printf("Commands insufficient\n");
         return (1);
     }
-
+    int i = 1;
     char **cmds[ac];
     int cmd_count = 0;
-    int i = 1;
     while (i < ac)
     {
         cmds[cmd_count++] = &av[i];
@@ -140,11 +136,5 @@ int main(int ac, char **av)
         }
     }
     cmds[cmd_count] = NULL;
-
     return (picoshell(cmds));
 }
-
-// can only run if we can make the main like this and just run ./picoshell alone, without argv 
-// but if we have to accept argv after ./picoshell, the code need to edit more 
-// - to take the whole char ** (/bin/ls -l) as our arg in execvp 
-// and to continue + do pipe if we came upon "|"

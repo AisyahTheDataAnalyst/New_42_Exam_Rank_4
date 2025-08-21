@@ -43,7 +43,7 @@ void unexpected(char c)
         printf("Unexpected end of input\n");  // MODIFIED: correct message according to the subject
 }
 
-/* MODIFIED: accept/expect remises à la signature d’origine, sans global */
+/* MODIFIED: accept/expect reset/returned to their original signature, without global */
 int accept(char **s, char c)
 {
     if (**s == c) {
@@ -61,12 +61,12 @@ int expect(char **s, char c)
     return 0;
 }
 
-/* ADDED: déclarations des fonctions de parsing récursif */
+/* ADDED: declarations of recursive parsing functions*/
 static node *parse_expr_r(char **s);
 static node *parse_term   (char **s);
 static node *parse_factor (char **s);
 
-/* ADDED: parsing d’un facteur (chiffre ou parenthèse) */
+/* ADDED: parsing a factor (a digit or a parenthesis)*/
 static node *parse_factor(char **s)
 {
     if (isdigit((unsigned char)**s)) {
@@ -78,7 +78,7 @@ static node *parse_factor(char **s)
         node *e = parse_expr_r(s);
         if (!e)
             return NULL;
-        if (!expect(s, ')')) {          // MOD: vérification de la parenthèse fermante
+        if (!expect(s, ')')) {          // MOD: checking the closing parenthesis
             destroy_tree(e);
             return NULL;
         }
@@ -88,7 +88,7 @@ static node *parse_factor(char **s)
     return NULL;
 }
 
-/* ADDED: parsing d’un terme (multiplications) */
+/* ADDED: parsing a term (multiplications) */
 static node *parse_term(char **s)
 {
     node *left = parse_factor(s);
@@ -108,7 +108,7 @@ static node *parse_term(char **s)
     return left;
 }
 
-/* ADDED: parsing d’une expression (additions) */
+/* ADDED: parsing an expression (additions) */
 /* THIS FUNCTION IS A COPY PASTE OF PARSE_TERM, YOU JUST HAVE TO REPLACE '*' by '+' !!!!!*/
 static node *parse_expr_r(char **s)
 {
@@ -129,7 +129,7 @@ static node *parse_expr_r(char **s)
     return left;
 }
 
-/* MODIFIED: parse_expr initialise un pointeur local et vérifie la fin de la chaîne */
+/* MODIFIED: parse_expr initializes a local pointer and checks the end of the string */
 node *parse_expr(char *s)
 {
     char *p = s;
