@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>    // MOD: on utilise <stdlib.h> pour calloc/free au lieu de <malloc.h>
+#include <stdlib.h>    // MOD: we use <stdlib.h> for calloc/free instead of <malloc.h>
 #include <ctype.h>
 
 typedef struct node 
@@ -28,7 +28,8 @@ void destroy_tree(node *n)
 {
     if (!n)
         return;
-    if (n->type != VAL) {
+    if (n->type != VAL)
+    {
         destroy_tree(n->l);
         destroy_tree(n->r);
     }
@@ -46,7 +47,8 @@ void unexpected(char c)
 /* MODIFIED: accept/expect reset/returned to their original signature, without global */
 int accept(char **s, char c)
 {
-    if (**s == c) {
+    if (**s == c) 
+    {
         (*s)++;
         return 1;
     }
@@ -69,12 +71,14 @@ static node *parse_factor (char **s);
 /* ADDED: parsing a factor (a digit or a parenthesis)*/
 static node *parse_factor(char **s)
 {
-    if (isdigit((unsigned char)**s)) {
+    if (isdigit((unsigned char)**s)) 
+    {
         node n = { .type = VAL, .val = **s - '0', .l = NULL, .r = NULL };
         (*s)++;
         return new_node(n);
     }
-    if (accept(s, '(')) {
+    if (accept(s, '(')) 
+    {
         node *e = parse_expr_r(s);
         if (!e)
             return NULL;
@@ -94,9 +98,11 @@ static node *parse_term(char **s)
     node *left = parse_factor(s);
     if (!left)
         return NULL;
-    while (accept(s, '*')) {
+    while (accept(s, '*')) 
+    {
         node *right = parse_factor(s);
-        if (!right) {
+        if (!right) 
+        {
             destroy_tree(left);
             return NULL;
         }
@@ -115,9 +121,11 @@ static node *parse_expr_r(char **s)
     node *left = parse_term(s);
     if (!left)
         return NULL;
-    while (accept(s, '+')) {
+    while (accept(s, '+')) 
+    {
         node *right = parse_term(s);
-        if (!right) {
+        if (!right) 
+        {
             destroy_tree(left);
             return NULL;
         }
@@ -136,7 +144,8 @@ node *parse_expr(char *s)
     node *ret = parse_expr_r(&p);
     if (!ret)
         return NULL;
-    if (*p) {                          
+    if (*p) 
+    {                          
         unexpected(*p);
         destroy_tree(ret);
         return NULL;
@@ -146,7 +155,8 @@ node *parse_expr(char *s)
 
 int eval_tree(node *tree)
 {
-    switch (tree->type) {
+    switch (tree->type) 
+    {
         case ADD:   return eval_tree(tree->l) + eval_tree(tree->r);
         case MULTI: return eval_tree(tree->l) * eval_tree(tree->r);
         case VAL:   return tree->val;
